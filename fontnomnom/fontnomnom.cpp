@@ -105,7 +105,7 @@ bool texture_sort(Texture a, Texture b)
 	return (a.rc.GetWidth() * a.rc.GetHeight() > b.rc.GetWidth() * b.rc.GetHeight());
 }
 
-void Pack(Buffer &from, std::vector<Texture> &textures, int pot, const std::string& atlas)
+bool Pack(Buffer &from, std::vector<Texture> &textures, int pot, const std::string& atlas)
 {
 	TextureMap tmap;
 	tmap.Create(pot, pot);
@@ -118,11 +118,8 @@ void Pack(Buffer &from, std::vector<Texture> &textures, int pot, const std::stri
 	for (size_t it = 0; it < max; it++)
 		tmap.Insert(textures[it]);
 
-	textures = tmap.Pack(from);
-
-	// Are there any textures left that didn't fit ?
-	for (size_t it = 0; it < textures.size(); it++)
-			std::cout << textures[it].unicode << ": " << textures[it].rc << std::endl;
+	if (tmap.Pack(from).size())
+		return false;
 
 	std::string jsonName = atlas + ".json";
 	std::string pngName = atlas + ".png";
@@ -131,6 +128,8 @@ void Pack(Buffer &from, std::vector<Texture> &textures, int pot, const std::stri
 	tmap.Save(pngName);
 
 	std::cout << "Conversion complétée: " << jsonName << ", " << pngName << std::endl;
+
+	return true;
 }
 
 void ReadTemplate(std::string& name)
@@ -187,7 +186,10 @@ void ReadTemplate(std::string& name)
 	}
 
 	// ####################### Pack
-	Pack(b, textures, 256, "atlas");
+	int pot = 32;
+
+	while (Pack(b, textures, pot, "atlas") == false)
+		pot <<= 1;
 }
 
 std::wstring stringToWstring(const std::string& t_str)
@@ -204,7 +206,11 @@ int main(int argc, char **argv)
 {
 	int ret = EXIT_SUCCESS;
 
-	if (argc == 2)
+	if (argc < 2)
+	{
+		CreateTemplate(Rect(Point(), Size(100, 200)), L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmonpqrstuvwxyz.!,;:\"'#/$%?&*()_+=");
+	}
+	else
 	{
 		std::string file = argv[1];
 
@@ -246,13 +252,8 @@ int main(int argc, char **argv)
 					{					
 						std::wstring ws = stringToWstring(fnn["string"].asString());				
 						CreateTemplate(Rect(Point(), Size(fnn["size"][0].asInt(), fnn["size"][1].asInt())), ws);
-
 					}
 				}
-			}
-			else
-			{
-				CreateTemplate(Rect(Point(), Size(100, 200)), L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmonpqrstuvwxyz.!,;:\"'#/$%?&*()_+=");
 			}
 		}
 	}
