@@ -32,7 +32,7 @@ void FT::DrawBitmap(Buffer &buffer, int x, int y)
 
 	for (size_t j=0; j<slot->bitmap.rows; j++, y++)
 	{
-		x = keep;
+		x = (int)keep;
 
 		for (size_t i=0; i<slot->bitmap.width; i++, ptr++, x++)
 		{
