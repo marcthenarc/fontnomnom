@@ -78,46 +78,47 @@ void ReadTemplate(std::string& name)
 
 	while (b.Scan(start, Point::Origin.MaxRight(), Buffer::HORZ, Buffer::MUST_FIND, RGBA::Red, hit))
 	{
+		redPos.push_back(hit.X);
+
 		const int bits = ReadBits(b, hit.X);
 
+		// We hit the end of the line.
 		if (bits == 0)
 			break;
 
-		// Scan the check box to see if we keep it
-		Rect rc = checkbox + Point(hit.X + 5, size.H - checkbox.GetHeight() - 2);
-		rc.Shrink(1);
+		utf16s.push_back(bits);
 
-		if (b.IsRectEmpty(rc))
-			std::cout << "Ignoring unicode " << bits << ": not selected." << std::endl;
-		else
-		{
-			redPos.push_back(hit.X);
-			utf16s.push_back(bits);
-		}
-		
-		start = hit + Point(1, 0);
+		start = Point(hit.X + 1, 0);
 	}
 
 	// ####################### Get each character's rectangle.
 	for (size_t i = 0; i<redPos.size() - 1; i++)
 	{
+		// Does the check box have color in it (selected) or not (not select) ?
+		Rect selRect = checkbox + Point(redPos[i] + 5, size.H - checkbox.GetHeight() - 2);
+		selRect.Shrink(1);
+
+		if (b.IsRectEmpty(selRect))
+			continue;
+
+		// Get a single character's cell and check if it's empty.
 		Point p(redPos[i], border + 1);
 		Point q(redPos[i + 1], size.H - border - 1);
 
 		Rect iso = Rect(p, q);
 
-		// Is the rectangle empty?
 		if (b.IsRectEmpty(iso))
-			std::cout << "Ignoring unicode " << utf16s[i] << ": empty." << std::endl;
-		else
 		{
-			textures.push_back(Texture());
-
-			Texture &t = textures[textures.size() - 1];
-			t.unicode = utf16s[i];
-			t.rc = b.IsolateRect(iso, RGBA::NoAlpha);
-			t.SetLowest(mid);
+			std::cout << "Ignoring unicode " << utf16s[i] << ": empty." << std::endl;
+			continue;
 		}
+		
+		textures.push_back(Texture());
+
+		Texture &t = textures[textures.size() - 1];
+		t.unicode = utf16s[i];
+		t.rc = b.IsolateRect(iso, RGBA::NoAlpha);
+		t.SetLowest(mid);
 	}
 
 	// ####################### Pack
