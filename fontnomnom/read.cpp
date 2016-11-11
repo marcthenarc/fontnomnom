@@ -1,9 +1,8 @@
 #include "stdafx.h"
-
-#include "texturemap.h"
 #include <bitset>
 #include <algorithm>
 
+#include "texturemap.h"
 #include "read.h"
 
 // Sort textures by area size, biggest to smallest.
@@ -94,7 +93,7 @@ void ReadTemplate(std::string& name)
 	// ####################### Get each character's rectangle.
 	for (size_t i = 0; i<redPos.size() - 1; i++)
 	{
-		// Does the check box have color in it (selected) or not (not select) ?
+		// Does the check box have color in it (selected) or not (not selected) ?
 		Rect selRect = checkbox + Point(redPos[i] + 5, size.H - checkbox.GetHeight() - 2);
 		selRect.Shrink(1);
 
@@ -113,6 +112,7 @@ void ReadTemplate(std::string& name)
 			continue;
 		}
 		
+		// Start isolating each character's rectangle.
 		textures.push_back(Texture());
 
 		Texture &t = textures[textures.size() - 1];
@@ -121,10 +121,11 @@ void ReadTemplate(std::string& name)
 		t.SetLowest(mid);
 	}
 
-	// ####################### Pack
+	// ####################### Pack textures into an atlas of a power-of-two.
+	// Increase * 2 everytime there are leftovers that can't fit in.
 	int pot = 32;
 
-	while (Pack(b, textures, pot, "atlas") == false)
-		pot <<= 1;
+	while (!Pack(b, textures, pot, "atlas"))
+		pot <<= 1; 
 }
 
