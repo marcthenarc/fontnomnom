@@ -23,11 +23,12 @@ static std::wstring stringToWstring(const std::string& t_str)
 
 int main(int argc, char **argv)
 {
-	int ret = EXIT_SUCCESS;
+	int ret = EXIT_FAILURE;
 
 	if (argc < 2)
 	{
 		CreateTemplate(Rect(Point(), Size(100, 200)), L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmonpqrstuvwxyz.!,;:\"'#/$%?&*()_+=");
+		ret = EXIT_SUCCESS;
 	}
 	else
 	{
@@ -38,6 +39,7 @@ int main(int argc, char **argv)
 			try
 			{
 				ReadTemplate(file);
+				ret = EXIT_SUCCESS;
 			}
 			catch (PNG_Exception e)
 			{
@@ -46,7 +48,6 @@ int main(int argc, char **argv)
 			catch (const char *e)
 			{
 				std::cerr << e << " : aborting." << std::endl;
-				ret = EXIT_FAILURE;
 			}
 		}
 		else
@@ -71,6 +72,7 @@ int main(int argc, char **argv)
 					{					
 						std::wstring ws = stringToWstring(fnn["string"].asString());				
 						CreateTemplate(Rect(Point(), Size(fnn["size"][0].asInt(), fnn["size"][1].asInt())), ws);
+						ret = EXIT_SUCCESS;
 					}
 				}
 			}
