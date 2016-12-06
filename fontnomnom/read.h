@@ -2,4 +2,4 @@
 
 #include <string>
 
-void ReadTemplate(std::string& name);
+void ReadTemplate(const std::string& name);

@@ -38,8 +38,8 @@ bool Pack(Buffer &from, std::vector<Texture> &textures, int pot, const std::stri
 	if (tmap.Pack(from).size())
 		return false;
 
-	std::string jsonName = atlas + ".json";
-	std::string pngName = atlas + ".png";
+	std::string jsonName = atlas + "_atlas.json";
+	std::string pngName = atlas + "_atlas.png";
 
 	tmap.SaveJSON(jsonName, pngName);
 	tmap.Save(pngName);
@@ -49,7 +49,7 @@ bool Pack(Buffer &from, std::vector<Texture> &textures, int pot, const std::stri
 	return true;
 }
 
-void ReadTemplate(std::string& name)
+void ReadTemplate(const std::string& name)
 {
 	// ######################## Load template
 	Buffer b;
@@ -125,7 +125,11 @@ void ReadTemplate(std::string& name)
 	// Increase * 2 everytime there are leftovers that can't fit in.
 	int pot = 32;
 
-	while (!Pack(b, textures, pot, "atlas"))
+    // Extract name from original name.
+    std::string atlas = name.substr(0, name.size() - 4);
+
+
+	while (!Pack(b, textures, pot, atlas))
 		pot <<= 1; 
 }
 

@@ -42,7 +42,7 @@ void CreateTemplate(const Rect& rect, const std::wstring theString)
 
 	// ##### Draw reference characters 
 	FT ft;
-	ft.SetFont("C:\\Windows\\Fonts\\YuGothic-Bold.ttf");
+	ft.SetFont("C:\\Windows\\Fonts\\constan.ttf");
 	ft.FreeTypeSetup(100, 0, 800, 0);
 	ft.SetFGColor(RGBA::White);
 	int font_width, font_height, font_left, font_right;
